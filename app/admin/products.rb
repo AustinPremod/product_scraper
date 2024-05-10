@@ -1,12 +1,8 @@
-ActiveAdmin.register Product do
+# frozen_string_literal: true
 
-  # See permitted parameters documentation:
-  # https://github.com/activeadmin/activeadmin/blob/master/docs/2-resource-customization.md#setting-up-strong-parameters
-  #
-  # Uncomment all parameters which should be permitted for assignment
-  #
+ActiveAdmin.register Product do
   permit_params :title, :description, :price, :contact_info, :author, :category, :scraped_at
-  
+
   filter :title
   filter :contact_info
   filter :author
