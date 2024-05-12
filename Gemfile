@@ -24,6 +24,7 @@ gem 'stimulus-rails'
 gem 'turbo-rails'
 gem 'active_model_serializers'
 gem 'devise_token_auth'
+gem 'rack-attack'
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'whenever', require: false
 group :development, :test do
