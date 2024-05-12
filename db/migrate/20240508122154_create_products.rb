@@ -5,13 +5,11 @@ class CreateProducts < ActiveRecord::Migration[7.0]
       t.text :description
       t.decimal :price
       t.string :contact_info
-      t.string :author
+      t.string :size
       t.string :category
       t.datetime :scraped_at
 
       t.timestamps
     end
-
-    add_index :products, :title, unique: true
   end
 end

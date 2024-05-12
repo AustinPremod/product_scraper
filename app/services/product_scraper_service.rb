@@ -3,24 +3,70 @@
 require 'nokogiri'
 require 'open-uri'
 class ProductScraperService
-  def self.scrape_product_details
-    url =  Rails.configuration.ss_settings['scrape_product']['url']
+  def self.scrape_product_details(url)    
     html = URI.open(url)
     doc = Nokogiri::HTML(html)
-    products = []
-    items = doc.css('.item')
-    ActiveRecord::Base.transaction do
-      items.each do |item|
-        title = item.at_css('.item-heading').text.strip
-        description = item.at_css('.item-body').text.strip
-        author = item.at_css('.item-byline').text.strip
-        next unless author.present? && description.present? && title.present?
 
-        products << Product.new(title: title, description: description, author: author, scraped_at: Time.zone.now)
-      end
-      Product.import(products, on_duplicate_key_update: { conflict_target: [:title] })
+    title = extract_title(doc)
+    description = extract_description(doc)
+    price = extract_price(doc)
+    category = extract_category(doc)
+    contact_info = extract_contact_info(doc)
+    size = extract_size(doc)
+    Product.transaction do
+      product = Product.find_or_initialize_by(
+        title: title,
+        description: description,
+        price: price,
+        category: category,
+        contact_info: contact_info,
+        size: size,
+        scraped_at: Time.zone.now
+      )
+      product.save!
+      product
     end
   rescue StandardError => e
-    Rails.logger.info("Error scraping product details: #{e.message}")
+    Rails.logger.error("Error scraping product details: #{e.message}")
+  end
+
+  def self.extract_title(doc)
+    title = doc.title.strip if doc.title
+    title ||= doc.at('meta[property="og:title"]')&.[]('content')&.strip
+    title ||= doc.at('meta[name="twitter:title"]')&.[]('content')&.strip
+    title ||= doc.at('h1')&.text&.strip
+    title
+  end
+
+  def self.extract_description(doc)
+    description = doc.at('meta[name="description"]')&.[]('content')&.strip
+    description ||= doc.at('meta[property="og:description"]')&.[]('content')&.strip
+    description ||= doc.at('meta[name="twitter:description"]')&.[]('content')&.strip
+    description
+  end
+
+  def self.extract_price(doc)
+    price = doc.at('.price')&.text&.strip
+    price ||= doc.at('.product-price')&.text&.strip
+    price ||= doc.at('.price-tag')&.text&.strip
+    price
+  end
+
+  def self.extract_category(doc)
+    category = doc.at('.category')&.text&.strip
+    category ||= doc.at('.product-category')&.text&.strip
+    category
+  end
+
+  def self.extract_contact_info(doc)
+    contact_info = doc.at('.contact-info')&.text&.strip
+    contact_info ||= doc.at('.product-contact')&.text&.strip
+    contact_info
+  end
+
+  def self.extract_size(doc)
+    size = doc.at('.size')&.text&.strip
+    size ||= doc.at('.product-size')&.text&.strip
+    size
   end
 end

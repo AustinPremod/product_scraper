@@ -22,6 +22,7 @@ gem 'sidekiq'
 gem 'sprockets-rails'
 gem 'stimulus-rails'
 gem 'turbo-rails'
+gem 'active_model_serializers'
 gem 'devise_token_auth'
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'whenever', require: false
