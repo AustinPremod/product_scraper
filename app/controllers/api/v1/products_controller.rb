@@ -13,7 +13,7 @@ module Api
           render json: { product: cached_response }
         else
           product = Product.scrape_product_details(url)
-          if product.present?
+          if product.present? && product.is_a?(Product)
             serialized_product = ProductSerializer.new(product).as_json
             Rails.cache.write(cache_key, serialized_product, expires_in: 10.minutes)
             

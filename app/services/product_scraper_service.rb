@@ -49,6 +49,7 @@ class ProductScraperService
     price = doc.at('.price')&.text&.strip
     price ||= doc.at('.product-price')&.text&.strip
     price ||= doc.at('.price-tag')&.text&.strip
+    price ||= doc.at('.x-price-primary .ux-textspans')&.text&.strip
     price
   end
 
